@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"sendsmsgroup-producer/configs"
 	"sendsmsgroup-producer/models"
 	"sendsmsgroup-producer/responses"
 
@@ -14,7 +15,7 @@ func HealthCheck(c echo.Context) error {
 	return c.JSON(http.StatusOK, responses.SMSGroupResponseTxt{Status: http.StatusOK, Message: "success", Data: "OK"})
 }
 func AddSMSQueue(c echo.Context) error {
-	amqpServerURL := "amqp://admin:inno007Z@10.100.72.125:5672/"
+	amqpServerURL := configs.EnvAMQPURL()
 
 	// Create a new RabbitMQ connection.
 	connectRabbitMQ, err := amqp.Dial(amqpServerURL)
@@ -35,12 +36,12 @@ func AddSMSQueue(c echo.Context) error {
 	// With the instance and declare Queues that we can
 	// publish and subscribe to.
 	_, err = channelRabbitMQ.QueueDeclare(
-		"QueueService1", // queue name
-		true,            // durable
-		false,           // auto delete
-		false,           // exclusive
-		false,           // no wait
-		nil,             // arguments
+		configs.EnvQueueName(), // queue name
+		true,                   // durable
+		false,                  // auto delete
+		false,                  // exclusive
+		false,                  // no wait
+		nil,                    // arguments
 	)
 	if err != nil {
 		panic(err)
@@ -60,11 +61,11 @@ func AddSMSQueue(c echo.Context) error {
 	}
 	// Attempt to publish a message to the queue.
 	if err := channelRabbitMQ.Publish(
-		"",              // exchange
-		"QueueService1", // queue name
-		false,           // mandatory
-		false,           // immediate
-		message,         // message to publish
+		"",                     // exchange
+		configs.EnvQueueName(), // queue name
+		false,                  // mandatory
+		false,                  // immediate
+		message,                // message to publish
 	); err != nil {
 		return c.JSON(http.StatusOK, responses.SMSGroupResponseTxt{Status: http.StatusOK, Message: "failed", Data: "error publish to queue"})
 	}
