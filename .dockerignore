@@ -1,5 +1,6 @@
 node_module
 npm-debug.log
 openapi.json
+Dockefile
 .env
 .gitignore
