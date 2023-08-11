@@ -10,9 +10,8 @@ WORKDIR /go/src/
 RUN go mod tidy
 
 # Build our application.
-RUN CGO_ENABLED=0 go build -o sender .
-
-EXPOSE 3000
+# RUN CGO_ENABLED=0 go build -o sender .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o sender .
 
 FROM scratch
 
